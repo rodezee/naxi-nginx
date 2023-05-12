@@ -1,0 +1,15 @@
+
+version: '3.1'
+
+services:
+
+  nginx:
+    image: rodezee/nginx-dev:0.0.1
+    build: .
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      NGINX_HOST: foobar.com
+      NGINX_PORT: 80
+
