@@ -102,7 +102,7 @@ ENV NGX_MOD_FILE_BASENAME=ngx_http_naxsi_module
 RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILE_BASENAME}.so;#" /etc/nginx/nginx.conf
 RUN cat /etc/nginx/nginx.conf
 RUN echo -e "\
-# include root/src/naxsi/naxsi_config/naxsi_core.rules;\n\
+#include root/src/naxsi/naxsi_config/naxsi_core.rules;\n\
 server {\n\
 \n\
     listen 80 default_server;\n\
@@ -115,7 +115,7 @@ server {\n\
 \n\
         # Define where blocked requests go\n\
         DeniedUrl "/50x.html";\n\
-
+\n\
         # CheckRules, determining when NAXSI needs to take action\n\
         CheckRule "\$SQL >= 8" BLOCK;\n\
         CheckRule "\$RFI >= 8" BLOCK;\n\
