@@ -110,20 +110,20 @@ server {\n\
     location / {\n\
         root /usr/share/nginx/html;\n\
 \n\
-        # Enable NAXSI\n\
+        \# Enable NAXSI\n\
         SecRulesEnabled;\n\
 \n\
-        # Define where blocked requests go\n\
+        \# Define where blocked requests go\n\
         DeniedUrl "/50x.html";\n\
 \n\
-        # CheckRules, determining when NAXSI needs to take action\n\
+        \# CheckRules, determining when NAXSI needs to take action\n\
         CheckRule "\$SQL >= 8" BLOCK;\n\
         CheckRule "\$RFI >= 8" BLOCK;\n\
         CheckRule "\$TRAVERSAL >= 4" BLOCK;\n\
         CheckRule "\$EVADE >= 4" BLOCK;\n\
         CheckRule "\$XSS >= 8" BLOCK;\n\
 \n\
-        # Don’t forget the error_log, where blocked requests are logged\n\
+        \# Don’t forget the error_log, where blocked requests are logged\n\
         error_log /tmp/naxsi.log;\n\
     }\n\
 \n\
