@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2019 Giovanni Dante Grazioli <gda@nbs-system.com>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# NAXSI include files
+naxsi_includes="
+    $ngx_addon_dir/naxsi.h \
+    $ngx_addon_dir/naxsi_const.h \
+    $ngx_addon_dir/naxsi_config.h \
+    $ngx_addon_dir/naxsi_net.h \
+"
+
+# prepend ngx_config.h to libinjection sources, copy headers
+mkdir -p $ngx_addon_dir/libinjection_ngxbuild
+cp $ngx_addon_dir/libinjection/src/*.h $ngx_addon_dir/libinjection_ngxbuild/
+for src_file in libinjection_html5.c libinjection_sqli.c libinjection_xss.c ; do
+    echo "#include <ngx_config.h>" > $ngx_addon_dir/libinjection_ngxbuild/$src_file
+    cat $ngx_addon_dir/libinjection/src/$src_file >> $ngx_addon_dir/libinjection_ngxbuild/$src_file
+done;
+
+# NAXSI C source files
+naxsi_sources="
+    $ngx_addon_dir/naxsi_config.c \
+    $ngx_addon_dir/naxsi_json.c \
+    $ngx_addon_dir/naxsi_net.c \
+    $ngx_addon_dir/naxsi_raw.c \
+    $ngx_addon_dir/naxsi_runtime.c \
+    $ngx_addon_dir/naxsi_skeleton.c \
+    $ngx_addon_dir/naxsi_utf8.c \
+    $ngx_addon_dir/naxsi_utils.c \
+    $ngx_addon_dir/naxsi_windows.c \
+    $ngx_addon_dir/libinjection_ngxbuild/libinjection_html5.c \
+    $ngx_addon_dir/libinjection_ngxbuild/libinjection_sqli.c \
+    $ngx_addon_dir/libinjection_ngxbuild/libinjection_xss.c \
+"
+
+CFLAGS="$CFLAGS -DLIBINJECTION_VERSION=0"
+
+# NGINX module condfiguration.
+ngx_addon_name=naxsi
+ngx_module_name=ngx_http_naxsi_module
+if test -n "$ngx_module_link"; then
+    ngx_module_type=HTTP
+    ngx_module_incs="$ngx_addon_dir/"
+    ngx_module_srcs="$naxsi_sources"
+    . auto/module
+else
+    HTTP_MODULES="$HTTP_MODULES ngx_http_naxsi_module"
+    NGX_ADDON_SRCS="$NGX_ADDON_SRCS $naxsi_sources"
+    NGX_ADDON_DEPS="$NGX_ADDON_DEPS $naxsi_includes"
+fi

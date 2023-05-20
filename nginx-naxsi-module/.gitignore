@@ -1,0 +1,9 @@
+*.tar.gz
+*.asc
+nginx-source
+nginx-tmp
+*.log
+.scripts/.tmp/
+/naxsi_src/libinjection_ngxbuild/
+/unit-tests/python/__pycache__
+/unit-tests/python/test_*
