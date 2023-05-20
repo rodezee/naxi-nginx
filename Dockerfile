@@ -126,6 +126,6 @@ ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
 
 #COPY --from=rodezee/nginx-dev:0.0.1 /root/nginx-${NGX_V} /root/nginx-${NGX_V}
 
-RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && make modules
+RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}/naxsi_src && make modules
                 
 RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
