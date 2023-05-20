@@ -94,7 +94,7 @@ WORKDIR /root/nginx-${NGX_V}
 RUN apk add --no-cache --virtual .compile build-base pcre-dev zlib-dev util-linux-dev gd-dev libxml2-dev openssl-dev openssl
 
 # CUSTOM MODULE PART
-ARG NGX_CUSTOM_MODULE_NAME=dfunction
+ARG NGX_CUSTOM_MODULE_NAME=naxsi
 
 ENV NGX_MOD_DIRNAME=nginx-${NGX_CUSTOM_MODULE_NAME}-module
 ENV NGX_MOD_FILENAME=ngx_http_${NGX_CUSTOM_MODULE_NAME}_module
@@ -124,8 +124,8 @@ ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
 # ENV RECONFIGURE=${RECONFIGURE}
 # RUN [ "$RECONFIGURE" = true ] && ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} || true
 
-COPY --from=rodezee/nginx-dev:0.0.1 /root/nginx-${NGX_V} /root/nginx-${NGX_V}
+#COPY --from=rodezee/nginx-dev:0.0.1 /root/nginx-${NGX_V} /root/nginx-${NGX_V}
 
-RUN make modules || ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && make modules
+RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && make modules
                 
 RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
