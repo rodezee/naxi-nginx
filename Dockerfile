@@ -94,44 +94,38 @@ WORKDIR /root/nginx-${NGX_V}
 RUN apk add --no-cache --virtual .compile build-base pcre-dev zlib-dev util-linux-dev gd-dev libxml2-dev openssl-dev openssl
 
 # CUSTOM MODULE PART
-ARG NGX_CUSTOM_MODULE_NAME=naxsi
+ARG NGX_CUSTOM_MODULE_NAME=dfunction
 
-ENV NGX_MOD_DIRNAME=naxsi/naxsi_src
-ENV NGX_MOD_FILE_BASENAME=ngx_http_naxsi_module
+ENV NGX_MOD_DIRNAME=nginx-${NGX_CUSTOM_MODULE_NAME}-module
+ENV NGX_MOD_FILENAME=ngx_http_${NGX_CUSTOM_MODULE_NAME}_module
 
-RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILE_BASENAME}.so;#" /etc/nginx/nginx.conf
+RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
 RUN cat /etc/nginx/nginx.conf
-#include root/src/naxsi/naxsi_config/naxsi_core.rules;\n\
 RUN echo -e "\
 server {\n\
 \n\
     listen 80 default_server;\n\
 \n\
     location / {\n\
-        root /usr/share/nginx/html;\n\
-\n\
-        SecRulesEnabled;\n\
-\n\
-        DeniedUrl "/50x.html";\n\
-\n\
-        CheckRule "\$SQL >= 8" BLOCK;\n\
-        CheckRule "\$RFI >= 8" BLOCK;\n\
-        CheckRule "\$TRAVERSAL >= 4" BLOCK;\n\
-        CheckRule "\$EVADE >= 4" BLOCK;\n\
-        CheckRule "\$XSS >= 8" BLOCK;\n\
-\n\
-        error_log /tmp/naxsi.log;\n\
+        ${NGX_CUSTOM_MODULE_NAME};\n\
     }\n\
-\n\
-    error_page   500 502 503 504  /50x.html;\n\
 }\
 " > /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 
+# # do reconfigure only on new module
+# RUN [ -d "/root/${NGX_MOD_DIRNAME}" ] || touch /root/${NGX_MOD_FILENAME}.reconfigure
+# ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
+# RUN ls -lah /root/
+# RUN [ -f "/root/${NGX_MOD_FILENAME}.reconfigure" ] && \
+#     ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && rm /root/${NGX_MOD_FILENAME}.reconfigure || true
 ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
+# ARG RECONFIGURE=false
+# ENV RECONFIGURE=${RECONFIGURE}
+# RUN [ "$RECONFIGURE" = true ] && ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} || true
 
 COPY --from=rodezee/nginx-dev:0.0.1 /root/nginx-${NGX_V} /root/nginx-${NGX_V}
 
 RUN make modules || ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && make modules
                 
-RUN cp ./objs/${NGX_MOD_FILE_BASENAME}.so /etc/nginx/modules/
+RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
