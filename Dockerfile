@@ -113,19 +113,10 @@ server {\n\
 " > /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 
-# # do reconfigure only on new module
-# RUN [ -d "/root/${NGX_MOD_DIRNAME}" ] || touch /root/${NGX_MOD_FILENAME}.reconfigure
-# ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
-# RUN ls -lah /root/
-# RUN [ -f "/root/${NGX_MOD_FILENAME}.reconfigure" ] && \
-#     ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} && rm /root/${NGX_MOD_FILENAME}.reconfigure || true
 ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
-# ARG RECONFIGURE=false
-# ENV RECONFIGURE=${RECONFIGURE}
-# RUN [ "$RECONFIGURE" = true ] && ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME} || true
 
-#COPY --from=rodezee/nginx-dev:0.0.1 /root/nginx-${NGX_V} /root/nginx-${NGX_V}
+# RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}/naxsi_src
 
-RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}/naxsi_src && make modules
+# RUN make modules
                 
-RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
+# RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
