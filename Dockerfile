@@ -112,7 +112,7 @@ RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
 RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
 RUN cat /etc/nginx/nginx.conf
 RUN echo -e "\
-include /root/${NGX_MOD_DIRNAME}/naxsi_config/naxsi_core.rules;\n\
+#include /root/${NGX_MOD_DIRNAME}/naxsi_config/naxsi_core.rules;\n\
 \n\
 server {\n\
     listen 80 default_server;\n\
