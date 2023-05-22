@@ -91,13 +91,14 @@ RUN wget https://nginx.org/download/nginx-${NGX_V}.tar.gz && \
 
 WORKDIR /root/nginx-${NGX_V}
 
-RUN apk add --no-cache --virtual .compile build-base pcre-dev zlib-dev util-linux-dev gd-dev libxml2-dev openssl-dev openssl
+RUN apk add --no-cache --virtual .compile git build-base pcre2-dev zlib-dev util-linux-dev gd-dev libxml2-dev openssl-dev openssl
 
 # CUSTOM MODULE PART
 ARG NGX_CUSTOM_MODULE_NAME=naxsi
 
 ENV NGX_MOD_DIRNAME=nginx-${NGX_CUSTOM_MODULE_NAME}-module
 ENV NGX_MOD_FILENAME=ngx_http_${NGX_CUSTOM_MODULE_NAME}_module
+ENV NGX_MOD_SUBPATH=/naxsi_src
 
 RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
 RUN cat /etc/nginx/nginx.conf
@@ -115,8 +116,10 @@ RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 
 ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
 
-# RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}/naxsi_src
+RUN git clone https://github.com/nbs-system/naxsi ../${NGX_MOD_DIRNAME}
 
-# RUN make modules
+RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}${NGX_MOD_SUBPATH}
+
+RUN make modules
                 
-# RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
+RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
