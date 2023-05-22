@@ -104,15 +104,17 @@ RUN git clone https://github.com/nbs-system/naxsi ../${NGX_MOD_DIRNAME} && rm -R
 
 RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}${NGX_MOD_SUBPATH}
 
-RUN make modules
+#RUN make modules
+RUN make
                 
 RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
+RUN cp -ra ./objs/nginx /usr/sbin/nginx
 
 # CONFIGURATION PART
 RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
 RUN cat /etc/nginx/nginx.conf
 RUN echo -e "\
-#include /root/${NGX_MOD_DIRNAME}/naxsi_config/naxsi_core.rules;\n\
+include /root/${NGX_MOD_DIRNAME}/naxsi_config/naxsi_core.rules;\n\
 \n\
 server {\n\
     listen 80 default_server;\n\
