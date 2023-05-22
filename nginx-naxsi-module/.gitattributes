@@ -1,7 +1,0 @@
-*.txt linguist-detectable=false
-*.conf linguist-detectable=false
-*.script linguist-detectable=false
-*.install linguist-detectable=false
-*.sh linguist-detectable=false
-*.py linguist-detectable=false
-*.t linguist-detectable=false
