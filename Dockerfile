@@ -100,24 +100,44 @@ ENV NGX_MOD_DIRNAME=nginx-${NGX_CUSTOM_MODULE_NAME}-module
 ENV NGX_MOD_FILENAME=ngx_http_${NGX_CUSTOM_MODULE_NAME}_module
 ENV NGX_MOD_SUBPATH=/naxsi_src
 
-RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
-RUN cat /etc/nginx/nginx.conf
-RUN echo -e "\
-server {\n\
-\n\
-    listen 80 default_server;\n\
-\n\
-    location / {\n\
-        ${NGX_CUSTOM_MODULE_NAME};\n\
-    }\n\
-}\
-" > /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
-RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
-
-RUN git clone https://github.com/nbs-system/naxsi ../${NGX_MOD_DIRNAME}
+RUN git clone https://github.com/nbs-system/naxsi ../${NGX_MOD_DIRNAME} && rm -Rf ../${NGX_MOD_DIRNAME}/.git
 
 RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}${NGX_MOD_SUBPATH}
 
 RUN make modules
                 
 RUN cp ./objs/${NGX_MOD_FILENAME}.so /etc/nginx/modules/
+
+# CONFIGURATION PART
+RUN sed -i "1s#^#load_module modules/${NGX_MOD_FILENAME}.so;#" /etc/nginx/nginx.conf
+RUN cat /etc/nginx/nginx.conf
+RUN echo -e "\
+include /root/${NGX_MOD_DIRNAME}/naxsi_config/naxsi_core.rules;\n\
+\n\
+server {\n\
+    listen 80 default_server;\n\
+\n\
+    location / {\n\
+        root /usr/share/nginx/html;\n\
+\n\
+        # Enable NAXSI\n\
+        SecRulesEnabled;\n\
+\n\
+        # Define where blocked requests go\n\
+        DeniedUrl "/50x.html";\n\
+\n\
+        # CheckRules, determining when NAXSI needs to take action\n\
+        CheckRule "$SQL >= 8" BLOCK;\n\
+        CheckRule "$RFI >= 8" BLOCK;\n\
+        CheckRule "$TRAVERSAL >= 4" BLOCK;\n\
+        CheckRule "$EVADE >= 4" BLOCK;\n\
+        CheckRule "$XSS >= 8" BLOCK;\n\
+\n\
+        # Don’t forget the error_log, where blocked requests are logged\n\
+        error_log /tmp/naxsi.log;\n\
+    }\n\
+\n\
+    error_page   500 502 503 504  /50x.html;\n\
+}\
+" > /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
+RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
