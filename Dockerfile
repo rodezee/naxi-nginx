@@ -114,8 +114,6 @@ server {\n\
 " > /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 RUN cat /etc/nginx/conf.d/${NGX_MOD_DIRNAME}.conf
 
-ADD ${NGX_MOD_DIRNAME} /root/${NGX_MOD_DIRNAME}
-
 RUN git clone https://github.com/nbs-system/naxsi ../${NGX_MOD_DIRNAME}
 
 RUN ./configure --with-compat --add-dynamic-module=../${NGX_MOD_DIRNAME}${NGX_MOD_SUBPATH}
